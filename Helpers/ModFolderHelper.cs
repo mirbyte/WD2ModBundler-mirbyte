@@ -5,7 +5,7 @@ namespace WD2ModBundler.Helpers
 {
     public static class ModFolderHelper
     {
-        private static string modFolderPath;
+        private static string? modFolderPath;
 
         public static void SetModFolderPath(string path)
         {

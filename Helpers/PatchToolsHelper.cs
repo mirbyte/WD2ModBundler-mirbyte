@@ -5,7 +5,7 @@ namespace WD2ModBundler.Helpers
 {
     public static class PatchToolsHelper
     {
-        private static string _patchToolsPath;
+        private static string? _patchToolsPath;
 
         public static void SetPatchToolsPath(string path)
         {

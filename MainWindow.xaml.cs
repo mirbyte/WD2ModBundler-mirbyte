@@ -12,7 +12,7 @@ namespace WD2ModBundler
 {
     public partial class MainWindow : Window
     {
-        private MusicHelper _musicHelper;
+        private MusicHelper? _musicHelper;
         private Action<string> _log;
 
 

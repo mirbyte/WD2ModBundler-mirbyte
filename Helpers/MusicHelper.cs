@@ -10,13 +10,13 @@ namespace WD2ModBundler.Helpers
 {
     public class MusicHelper
     {
-        private SoundPlayer _player;
-        private Stream _stream; // Keep alive the music stream
+        private SoundPlayer? _player;
+        private Stream? _stream; // Keep alive the music stream
         private Action<string> _log;
 
         
 
-        public MusicHelper(string embeddedResourceName, Action<string> mhlog = null)
+        public MusicHelper(string embeddedResourceName, Action<string>? mhlog = null)
         {
            _log = mhlog ?? (_ => { }); //- Safe no-op to prevent NullReffException
 

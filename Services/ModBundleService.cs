@@ -14,7 +14,7 @@ namespace WD2ModBundler.Services
         /// <param name="ModArchivePath">Folder containing mod archives (.zip, .7z, etc.)</param>
         /// <param name="mbslog">Delegate to mbslog messages to UI</param>
         /// <param name="progress">Delegate to report progress (0-100%) to UI</param>
-        public void CombineMods(string ModArchivePath, Action<string> mbslog, Action<int> progress = null)
+        public void CombineMods(string ModArchivePath, Action<string> mbslog, Action<int>? progress = null)
         {
             try
             {
@@ -134,7 +134,7 @@ namespace WD2ModBundler.Services
                 // -----------------------------
                 mbslog?.Invoke("All mods combined successfully, check MyModsBundle folder!");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw; //Method caller will handle error display instead
             }
