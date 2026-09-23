@@ -113,8 +113,9 @@ namespace WD2ModBundler
             if (ofd.ShowDialog() == true)
             {
                 string selectedPath = ofd.FileName;
-                SevenZipPathTextBlock.Text = selectedPath;
                 ArchiveHelper.Set7ZipPath(selectedPath);
+                SevenZipPathTextBlock.Text = selectedPath;
+                SevenZipPathTextBlock.Foreground = Brushes.LightGreen;
             }
         }
 
@@ -131,8 +132,9 @@ namespace WD2ModBundler
                 if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
                     string selectedPath = dialog.SelectedPath;
-                    FolderPathTextBlock.Text = selectedPath;
                     ModFolderHelper.SetModFolderPath(selectedPath);
+                    FolderPathTextBlock.Text = selectedPath;
+                    FolderPathTextBlock.Foreground = Brushes.LightGreen;
                 }
             }
         }
@@ -150,8 +152,9 @@ namespace WD2ModBundler
                 if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
                     string selectedPath = dialog.SelectedPath;
-                    PatchToolsPath.Text = selectedPath;
                     PatchToolsHelper.SetPatchToolsPath(selectedPath);
+                    PatchToolsPath.Text = selectedPath;
+                    PatchToolsPath.Foreground = Brushes.LightGreen;
                 }
             }
         }
