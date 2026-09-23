@@ -6,6 +6,8 @@ WD2ModBundler v1.0.1 28.02.2026
 
 I made this fork of [WD2ModBundler](https://github.com/qotapac/WD2ModBundler) to add a few small changes that make mod bundling easier for end users while preserving the original project's purpose.
 
+This fork targets .NET 10 for Windows. Framework-dependent builds require the .NET 10 Desktop Runtime.
+
 -----
 INFO:
 -----
