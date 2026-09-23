@@ -32,7 +32,7 @@ Needs 7-Zip installed﻿. https://www.7-zip.org/download.html
 
 Requires official WD2 Patch Tools﻿ by Me1ton﻿. https://www.nexusmods.com/watchdogs2/mods/28
 
-Leaves temporary folders after running (Temp and Patch folders). You can delete them after usage. 
+Removes the Temp folder when a run finishes. The Patch folder is left behind and can be deleted after usage. 
 
 -----------
 How to Use:
@@ -43,7 +43,7 @@ How to Use:
 
 3. Run WD2ModBundler.exe. It will be either in the root of the WD2ModBundler folder or inside win-x64. (depending on what version you download)
 
-4. Press button "Select 7-Zip.exe" and choose 7z.exe file.
+4. On startup the app searches for 7z.exe in the usual install folders and on PATH. If the path is shown in green, skip this step. Otherwise press "Select 7-Zip.exe" and choose 7z.exe.
 
 5. Press button "Select folder with mods archives" and select the folder containing your mod archives.
 
