@@ -16,12 +16,12 @@ namespace WD2ModBundler.Services
         /// <param name="progress">Delegate to report progress (0-100%) to UI</param>
         public void CombineMods(string ModArchivePath, Action<string> mbslog, Action<int>? progress = null)
         {
+            string tempPath = Path.Combine(Directory.GetCurrentDirectory(), "Temp");
             try
             {
                 // -----------------------------
                 //  Prepare temporary workspace
                 // -----------------------------
-                string tempPath = Path.Combine(Directory.GetCurrentDirectory(), "Temp");
 
                 // If Temp folder exists, delete it completely to start fresh
                 if (Directory.Exists(tempPath))
@@ -137,6 +137,21 @@ namespace WD2ModBundler.Services
             catch (Exception)
             {
                 throw; //Method caller will handle error display instead
+            }
+            finally
+            {
+                try
+                {
+                    if (Directory.Exists(tempPath))
+                    {
+                        Directory.Delete(tempPath, true);
+                        mbslog?.Invoke("Temp folder removed.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    mbslog?.Invoke($"Could not remove Temp folder: {ex.Message}");
+                }
             }
         }
     }

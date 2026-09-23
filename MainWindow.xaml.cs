@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -14,6 +15,9 @@ namespace WD2ModBundler
     {
         private MusicHelper? _musicHelper;
         private Action<string> _log;
+        private bool _has7Zip;
+        private bool _hasModFolder;
+        private bool _hasPatchTools;
 
 
         //Method for MainWindow.Loaded event
@@ -21,13 +25,77 @@ namespace WD2ModBundler
         {
             // Start music automatically after window is fully rendered
             _musicHelper?.Play();
+            RestoreSavedPaths();
+        }
 
-            string? sevenZip = ArchiveHelper.TryFind7Zip();
-            if (!string.IsNullOrEmpty(sevenZip))
+        private void RestoreSavedPaths()
+        {
+            PathSettings settings = PathSettings.Load();
+
+            if (!string.IsNullOrWhiteSpace(settings.SevenZipPath) && File.Exists(settings.SevenZipPath))
             {
-                SevenZipPathTextBlock.Text = $"Found: {sevenZip}";
+                ArchiveHelper.Set7ZipPath(settings.SevenZipPath);
+                SevenZipPathTextBlock.Text = settings.SevenZipPath;
                 SevenZipPathTextBlock.Foreground = Brushes.LightGreen;
-                _log($"7-Zip found: {sevenZip}");
+                _log($"7-Zip restored: {settings.SevenZipPath}");
+                _has7Zip = true;
+            }
+            else
+            {
+                if (!string.IsNullOrWhiteSpace(settings.SevenZipPath))
+                    _log($"Saved 7-Zip path is missing: {settings.SevenZipPath}");
+
+                string? sevenZip = ArchiveHelper.TryFind7Zip();
+                if (!string.IsNullOrEmpty(sevenZip))
+                {
+                    SevenZipPathTextBlock.Text = $"Found: {sevenZip}";
+                    SevenZipPathTextBlock.Foreground = Brushes.LightGreen;
+                    _log($"7-Zip found: {sevenZip}");
+                    _has7Zip = true;
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(settings.ModFolderPath) && Directory.Exists(settings.ModFolderPath))
+            {
+                ModFolderHelper.SetModFolderPath(settings.ModFolderPath);
+                FolderPathTextBlock.Text = settings.ModFolderPath;
+                FolderPathTextBlock.Foreground = Brushes.LightGreen;
+                _log($"Mod folder restored: {settings.ModFolderPath}");
+                _hasModFolder = true;
+            }
+            else if (!string.IsNullOrWhiteSpace(settings.ModFolderPath))
+            {
+                _log($"Saved mod folder is missing: {settings.ModFolderPath}");
+            }
+
+            if (!string.IsNullOrWhiteSpace(settings.PatchToolsPath))
+            {
+                try
+                {
+                    PatchToolsHelper.SetPatchToolsPath(settings.PatchToolsPath);
+                    PatchToolsPath.Text = settings.PatchToolsPath;
+                    PatchToolsPath.Foreground = Brushes.LightGreen;
+                    _log($"Patch tools restored: {settings.PatchToolsPath}");
+                    _hasPatchTools = true;
+                }
+                catch (Exception ex)
+                {
+                    _log($"Saved patch tools folder skipped: {ex.Message}");
+                }
+            }
+
+            UpdateCombineButton();
+        }
+
+        private void Remember(Action<PathSettings> update)
+        {
+            try
+            {
+                PathSettings.Update(update);
+            }
+            catch (Exception ex)
+            {
+                _log($"Could not save settings: {ex.Message}");
             }
         }
 
@@ -103,11 +171,20 @@ namespace WD2ModBundler
 
             MessageBox.Show(message, "7-Zip Info", MessageBoxButton.OK, MessageBoxImage.Information);
 
+            string initialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
+            string? savedSevenZip = PathSettings.Load().SevenZipPath;
+            if (!string.IsNullOrWhiteSpace(savedSevenZip))
+            {
+                string? savedDir = Path.GetDirectoryName(savedSevenZip);
+                if (!string.IsNullOrEmpty(savedDir) && Directory.Exists(savedDir))
+                    initialDirectory = savedDir;
+            }
+
             OpenFileDialog ofd = new OpenFileDialog
             {
                 Title = "Select 7z.exe",
                 Filter = "7-Zip Executable|7z.exe",
-                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)
+                InitialDirectory = initialDirectory
             };
 
             if (ofd.ShowDialog() == true)
@@ -116,6 +193,9 @@ namespace WD2ModBundler
                 ArchiveHelper.Set7ZipPath(selectedPath);
                 SevenZipPathTextBlock.Text = selectedPath;
                 SevenZipPathTextBlock.Foreground = Brushes.LightGreen;
+                _has7Zip = true;
+                UpdateCombineButton();
+                Remember(s => s.SevenZipPath = selectedPath);
             }
         }
 
@@ -124,9 +204,11 @@ namespace WD2ModBundler
             MessageBox.Show("Please select the folder containing mod archives.\nDo NOT extract the archives before selecting.",
                 "Mod Folder Info", MessageBoxButton.OK, MessageBoxImage.Information);
 
+            string? savedModFolder = PathSettings.Load().ModFolderPath;
             using (var dialog = new System.Windows.Forms.FolderBrowserDialog
             {
-                Description = "Select folder with mod archives"
+                Description = "Select folder with mod archives",
+                SelectedPath = !string.IsNullOrWhiteSpace(savedModFolder) && Directory.Exists(savedModFolder) ? savedModFolder : ""
             })
             {
                 if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
@@ -135,6 +217,9 @@ namespace WD2ModBundler
                     ModFolderHelper.SetModFolderPath(selectedPath);
                     FolderPathTextBlock.Text = selectedPath;
                     FolderPathTextBlock.Foreground = Brushes.LightGreen;
+                    _hasModFolder = true;
+                    UpdateCombineButton();
+                    Remember(s => s.ModFolderPath = selectedPath);
                 }
             }
         }
@@ -144,9 +229,11 @@ namespace WD2ModBundler
             MessageBox.Show("Please select the folder containing WD2 Patch Tools.\nFolder MUST contain WD2Extract.exe and WD2Pack.exe.",
                 "WD2 Patch Tools Info", MessageBoxButton.OK, MessageBoxImage.Information);
 
+            string? savedPatchTools = PathSettings.Load().PatchToolsPath;
             using (var dialog = new System.Windows.Forms.FolderBrowserDialog
             {
-                Description = "Select folder with WD2 Patch Tools"
+                Description = "Select folder with WD2 Patch Tools",
+                SelectedPath = !string.IsNullOrWhiteSpace(savedPatchTools) && Directory.Exists(savedPatchTools) ? savedPatchTools : ""
             })
             {
                 if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
@@ -155,6 +242,9 @@ namespace WD2ModBundler
                     PatchToolsHelper.SetPatchToolsPath(selectedPath);
                     PatchToolsPath.Text = selectedPath;
                     PatchToolsPath.Foreground = Brushes.LightGreen;
+                    _hasPatchTools = true;
+                    UpdateCombineButton();
+                    Remember(s => s.PatchToolsPath = selectedPath);
                 }
             }
         }
@@ -179,6 +269,12 @@ namespace WD2ModBundler
         #endregion
 
         #region Combine Mods
+
+        private void UpdateCombineButton()
+        {
+            bool ready = _has7Zip && _hasModFolder && _hasPatchTools;
+            CombineModsButton.Visibility = ready ? Visibility.Visible : Visibility.Collapsed;
+        }
 
         private async void CombineMods_Click(object sender, RoutedEventArgs e)  //Async ensures that UI does not stop
         {
