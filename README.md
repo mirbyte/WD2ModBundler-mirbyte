@@ -1,6 +1,10 @@
-﻿---------------------------------------
-WD2ModBundler-mirbyte v1.0.1 28.02.2026
----------------------------------------
+-------------------------------
+WD2ModBundler v1.0.1 28.02.2026
+-------------------------------
+
+## About this fork
+
+I made this fork of [WD2ModBundler](https://github.com/qotapac/WD2ModBundler) to add a few small changes that make mod bundling easier for end users while preserving the original project's purpose.
 
 -----
 INFO:
