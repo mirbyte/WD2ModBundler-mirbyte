@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using Microsoft.VisualBasic.Logging;
 using Microsoft.Win32; // For OpenFileDialog
 using WD2ModBundler.Helpers;
@@ -20,6 +21,14 @@ namespace WD2ModBundler
         {
             // Start music automatically after window is fully rendered
             _musicHelper?.Play();
+
+            string? sevenZip = ArchiveHelper.TryFind7Zip();
+            if (!string.IsNullOrEmpty(sevenZip))
+            {
+                SevenZipPathTextBlock.Text = $"Found: {sevenZip}";
+                SevenZipPathTextBlock.Foreground = Brushes.LightGreen;
+                _log($"7-Zip found: {sevenZip}");
+            }
         }
 
         public MainWindow()
